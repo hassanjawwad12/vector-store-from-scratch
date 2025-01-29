@@ -1,22 +1,32 @@
 import numpy as np
 import time
+import fitz  
+import nltk
+from nltk.tokenize import sent_tokenize
 from vector_store import VectorStore
 import faiss
 
-# Create a VectorStore instance
-vector_store = VectorStore()
+nltk.download('punkt')
+nltk.download('punkt_tab')
 
-# Define your sentences
-sentences = [
-    "I eat mango",
-    "mango is my favorite fruit",
-    "mango, apple, oranges are fruits",
-    "fruits are good for health"
-]
+# Load PDF and extract text
+def extract_text_from_pdf(pdf_path):
+    doc = fitz.open(pdf_path)
+    text = ""
+    for page in doc:
+        text += page.get_text("text") + " "  
+    return text.strip()
+
+# Process PDF
+pdf_path = "cv-template.pdf" 
+text = extract_text_from_pdf(pdf_path)
+sentences = sent_tokenize(text)  
+
+# Initialize Vector Store
+vector_store = VectorStore()
 
 # Tokenization and Vocabulary Creation
 vocabulary = set()
-
 for sentence in sentences:
     tokens = sentence.lower().split()
     vocabulary.update(tokens)
@@ -26,7 +36,6 @@ word_to_index = {word: i for i, word in enumerate(vocabulary)}
 
 # Vectorization
 sentence_vectors = {}
-
 for sentence in sentences:
     tokens = sentence.lower().split()
     vector = np.zeros(len(vocabulary))
@@ -34,12 +43,12 @@ for sentence in sentences:
         vector[word_to_index[token]] += 1
     sentence_vectors[sentence] = vector
 
-# Storing in VectorStore
+# Store vectors in VectorStore
 for sentence, vector in sentence_vectors.items():
     vector_store.add_vector(sentence, vector)
 
-# Searching for Similarity using VectorStore
-query_sentence = "Mango is the best fruit"
+# Search Similarity using VectorStore
+query_sentence = "Advised client’s Digital Media"
 query_vector = np.zeros(len(vocabulary))
 query_tokens = query_sentence.lower().split()
 
@@ -72,6 +81,6 @@ end_time = time.time()
 print("\nSimilar Sentences using FAISS:")
 for i in range(k):
     sentence = list(sentence_vectors.keys())[indices[0][i]]
-    similarity = 1 - distances[0][i] / (len(vocabulary) ** 2)  # Normalize similarity
+    similarity = 1 - distances[0][i] / (len(vocabulary) ** 2)  
     print(f"{sentence}: Similarity = {similarity:.4f}")
 print(f"Execution Time for FAISS: {end_time - start_time:.4f} seconds")
