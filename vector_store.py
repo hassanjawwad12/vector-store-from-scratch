@@ -3,7 +3,7 @@ import numpy as np
 class VectorStore:
     def __init__(self):
         self.vector_data = {} # dictionary to store vectors
-        self.vector.index ={} # dictionary to index structure for retrieval 
+        self.vector_index ={} # dictionary to index structure for retrieval 
 
     def add_vector(self, vector_id, vector):
         """
