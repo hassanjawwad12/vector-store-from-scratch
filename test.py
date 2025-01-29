@@ -70,17 +70,25 @@ print(f"Execution Time for Custom Store: {end_time - start_time:.4f} seconds")
 vectors = list(sentence_vectors.values())
 vectors_array = np.array(vectors).astype('float32')
 
-index = faiss.IndexFlatL2(len(vocabulary))
+# Normalize vectors to unit length (important for cosine similarity)
+def normalize_vectors(vectors):
+    norms = np.linalg.norm(vectors, axis=1, keepdims=True)
+    return vectors / norms
+
+vectors_array = normalize_vectors(vectors_array)
+query_vector = normalize_vectors(np.array([query_vector])) 
+
+index = faiss.IndexFlatIP(len(vocabulary))  # Inner Product for cosine similarity
 index.add(vectors_array)
 
 start_time = time.time()
 k = 2
-distances, indices = index.search(np.array([query_vector]), k)
+distances, indices = index.search(query_vector, k)
 end_time = time.time()
 
 print("\nSimilar Sentences using FAISS:")
 for i in range(k):
     sentence = list(sentence_vectors.keys())[indices[0][i]]
-    similarity = 1 - distances[0][i] / (len(vocabulary) ** 2)  
+    similarity = distances[0][i] 
     print(f"{sentence}: Similarity = {similarity:.4f}")
 print(f"Execution Time for FAISS: {end_time - start_time:.4f} seconds")
