@@ -1,0 +1,4 @@
+numpy
+pymupdf
+nltk
+faiss-cpu
