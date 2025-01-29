@@ -18,7 +18,7 @@ def extract_text_from_pdf(pdf_path):
     return text.strip()
 
 # Process PDF
-pdf_path = "cv-template.pdf" 
+pdf_path = "cough.pdf" 
 text = extract_text_from_pdf(pdf_path)
 sentences = sent_tokenize(text)  
 
@@ -48,7 +48,7 @@ for sentence, vector in sentence_vectors.items():
     vector_store.add_vector(sentence, vector)
 
 # Search Similarity using VectorStore
-query_sentence = "Advised client’s Digital Media"
+query_sentence = "I love my Mother"
 query_vector = np.zeros(len(vocabulary))
 query_tokens = query_sentence.lower().split()
 
@@ -63,7 +63,7 @@ end_time = time.time()
 print("Query Sentence:", query_sentence)
 print("Similar Sentences using Custom Store:")
 for sentence, similarity in similar_sentences_custom:
-    print(f"{sentence}: Similarity = {similarity:.4f}")
+     print(f"{sentence}: Similarity = {similarity:.4f}")
 print(f"Execution Time for Custom Store: {end_time - start_time:.4f} seconds")
 
 # Using FAISS
